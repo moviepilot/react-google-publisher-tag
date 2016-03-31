@@ -65,6 +65,9 @@ function initGooglePublisherTag() {
     // load ad with slot refresh
     googletag.pubads().disableInitialLoad();
 
+    // enable single request mode
+    googletag.pubads().enableSingleRequest();
+
     // enable google publisher tag
     googletag.enableServices();
   });
