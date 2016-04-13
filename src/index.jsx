@@ -154,10 +154,12 @@ export default class GooglePublisherTag extends Component {
 
     // filter by min and max width
     const windowWidth = window.innerWidth;
-    const { minWindowWidth,
+    const {
+      minWindowWidth,
       maxWindowWidth,
       targeting = [],
-      slotOptions = []} = props;
+      collapseEmptyDiv
+    } = props;
 
     if (minWindowWidth !== -1 && minWindowWidth < windowWidth) {
       dimensions = [];
@@ -202,9 +204,11 @@ export default class GooglePublisherTag extends Component {
       }
     }
 
-    for (let setting of slotOptions) {
-      if (setting.function) {
-        slot[setting.function](setting.argument);
+    if (typeof collapseEmptyDiv !== 'undefined') {
+      if (Array.isArray(collapseEmptyDiv)) {
+        slot.setCollapseEmptyDiv(true, true);
+      } else {
+        slot.setCollapseEmptyDiv(collapseEmptyDiv);
       }
     }
 
