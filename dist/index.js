@@ -181,6 +181,7 @@ var GooglePublisherTag = function (_Component) {
       var maxWindowWidth = props.maxWindowWidth;
       var _props$targeting = props.targeting;
       var targeting = _props$targeting === undefined ? [] : _props$targeting;
+      var collapseEmptyDiv = props.collapseEmptyDiv;
 
 
       if (minWindowWidth !== -1 && minWindowWidth < windowWidth) {
@@ -222,6 +223,14 @@ var GooglePublisherTag = function (_Component) {
       for (var key in targeting) {
         if (targeting.hasOwnProperty(key)) {
           slot.setTargeting(key, targeting[key]);
+        }
+      }
+
+      if (typeof collapseEmptyDiv !== 'undefined') {
+        if (Array.isArray(collapseEmptyDiv)) {
+          slot.setCollapseEmptyDiv(true, true);
+        } else {
+          slot.setCollapseEmptyDiv(collapseEmptyDiv);
         }
       }
 
