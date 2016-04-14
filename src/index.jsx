@@ -206,7 +206,7 @@ export default class GooglePublisherTag extends Component {
 
     if (typeof collapseEmptyDiv !== 'undefined') {
       if (Array.isArray(collapseEmptyDiv)) {
-        slot.setCollapseEmptyDiv(true, true);
+        slot.setCollapseEmptyDiv.apply('setCollapseEmptyDiv', collapseEmptyDiv);
       } else {
         slot.setCollapseEmptyDiv(collapseEmptyDiv);
       }
