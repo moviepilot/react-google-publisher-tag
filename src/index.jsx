@@ -47,10 +47,12 @@ function getNextID() {
   return 'rgpt-' + (nextID++);
 }
 
-function initGooglePublisherTag() {
+function initGooglePublisherTag(props) {
   if (googletag) {
     return;
   }
+
+  const { impressionViewableCallback, slotRenderedCallback } = props;
 
   googletag = window.googletag = window.googletag || {};
   googletag.cmd = googletag.cmd || [];
@@ -65,8 +67,19 @@ function initGooglePublisherTag() {
     // load ad with slot refresh
     googletag.pubads().disableInitialLoad();
 
+
     // enable single request mode
     googletag.pubads().enableSingleRequest();
+
+    // Throw event when the slot is visible in DOM (thrown before 'impressionViewable' )
+    if (typeof slotRenderedCallback === 'function') {
+      googletag.pubads().addEventListener('slotRenderEnded', slotRenderedCallback);
+    }
+
+    // Throw event when ad is visible in DOM
+    if (typeof impressionViewableCallback === 'function') {
+      googletag.pubads().addEventListener('impressionViewable', impressionViewableCallback);
+    }
 
     // enable google publisher tag
     googletag.enableServices();
@@ -107,7 +120,7 @@ export default class GooglePublisherTag extends Component {
   };
 
   componentDidMount() {
-    initGooglePublisherTag();
+    initGooglePublisherTag(this.props);
 
     if (this.props.responsive) {
       window.addEventListener('resize', this.handleResize);
