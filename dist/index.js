@@ -69,17 +69,43 @@ function getNextID() {
 }
 
 function initGooglePublisherTag(props) {
-  if (googletag) {
+  var exitAfterAddingCommands = !!googletag;
+
+  if (!googletag) {
+    googletag = window.googletag = window.googletag || {};
+    googletag.cmd = googletag.cmd || [];
+  }
+
+  var onImpressionViewable = props.onImpressionViewable;
+  var onSlotRenderEnded = props.onSlotRenderEnded;
+  var path = props.path;
+
+
+  googletag.cmd.push(function addListeners() {
+    // Execute callback when the slot is visible in DOM (thrown before 'impressionViewable' )
+    if (typeof slotRenderEndedCallback === 'function') {
+      googletag.pubads().addEventListener('slotRenderEnded', function slotRendered(event) {
+        // check if the current slot is the one the callback was added to (as addEventListener is global)
+        if (event.slot.getAdUnitPath() === path) {
+          onSlotRenderEnded(event);
+        }
+      });
+    }
+    // Execute callback when ad is completely visible in DOM
+    if (typeof impressionViewableCallback === 'function') {
+      googletag.pubads().addEventListener('impressionViewable', function slotRendered(event) {
+        if (event.slot.getAdUnitPath() === path) {
+          onImpressionViewable(event);
+        }
+      });
+    }
+  });
+
+  if (exitAfterAddingCommands) {
     return;
   }
 
-  var impressionViewableCallback = props.impressionViewableCallback;
-  var slotRenderedCallback = props.slotRenderedCallback;
-
-
-  googletag = window.googletag = window.googletag || {};
-  googletag.cmd = googletag.cmd || [];
-
+  // Initialize
   googletag.cmd.push(function prepareGoogleTag() {
     // add support for async loading
     googletag.pubads().enableAsyncRendering();
