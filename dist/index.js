@@ -80,26 +80,28 @@ function initGooglePublisherTag(props) {
   var onSlotRenderEnded = props.onSlotRenderEnded;
   var path = props.path;
 
+  // Execute callback when the slot is visible in DOM (thrown before 'impressionViewable' )
 
-  googletag.cmd.push(function addListeners() {
-    // Execute callback when the slot is visible in DOM (thrown before 'impressionViewable' )
-    if (typeof slotRenderEndedCallback === 'function') {
-      googletag.pubads().addEventListener('slotRenderEnded', function slotRendered(event) {
+  if (typeof onSlotRenderEnded === 'function') {
+    googletag.cmd.push(function addCallback() {
+      googletag.pubads().addEventListener('slotRenderEnded', function slotRenderEnded(event) {
         // check if the current slot is the one the callback was added to (as addEventListener is global)
         if (event.slot.getAdUnitPath() === path) {
           onSlotRenderEnded(event);
         }
       });
-    }
-    // Execute callback when ad is completely visible in DOM
-    if (typeof impressionViewableCallback === 'function') {
-      googletag.pubads().addEventListener('impressionViewable', function slotRendered(event) {
+    });
+  }
+  // Execute callback when ad is completely visible in DOM
+  if (typeof onImpressionViewable === 'function') {
+    googletag.cmd.push(function addCallback() {
+      googletag.pubads().addEventListener('impressionViewable', function imporessionViewable(event) {
         if (event.slot.getAdUnitPath() === path) {
           onImpressionViewable(event);
         }
       });
-    }
-  });
+    });
+  }
 
   if (exitAfterAddingCommands) {
     return;
@@ -118,16 +120,6 @@ function initGooglePublisherTag(props) {
 
     // enable single request mode
     googletag.pubads().enableSingleRequest();
-
-    // Throw event when the slot is visible in DOM (thrown before 'impressionViewable' )
-    if (typeof slotRenderedCallback === 'function') {
-      googletag.pubads().addEventListener('slotRenderEnded', slotRenderedCallback);
-    }
-
-    // Throw event when ad is visible in DOM
-    if (typeof impressionViewableCallback === 'function') {
-      googletag.pubads().addEventListener('impressionViewable', impressionViewableCallback);
-    }
 
     // enable google publisher tag
     googletag.enableServices();
