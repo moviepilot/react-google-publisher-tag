@@ -128,6 +128,8 @@ export default class GooglePublisherTag extends Component {
     maxWindowWidth: PropTypes.number.isRequired,
     targeting: PropTypes.object,
     enableServices: PropTypes.bool,
+    onSlotRenderEnded: PropTypes.func,
+    onImpressionViewable: PropTypes.func,
   };
 
   static defaultProps = {
