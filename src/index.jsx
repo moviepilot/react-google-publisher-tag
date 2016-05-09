@@ -66,7 +66,7 @@ function initGooglePublisherTag(props) {
     googletag.cmd = googletag.cmd || [];
   }
 
-  const { onImpressionViewable, onSlotRenderEnded, path } = props;
+  const { onImpressionViewable, onSlotRenderEnded, path, enableServices = true } = props;
 
   // Execute callback when the slot is visible in DOM (thrown before 'impressionViewable' )
   if (typeof onSlotRenderEnded === 'function') {
@@ -94,19 +94,21 @@ function initGooglePublisherTag(props) {
     return;
   }
 
-  googletag.cmd.push(() => {
-    // add support for async loading
-    googletag.pubads().enableAsyncRendering();
+  if (enableServices) {
+    googletag.cmd.push(() => {
+      // add support for async loading
+      googletag.pubads().enableAsyncRendering();
 
-    // collapse div without ad
-    googletag.pubads().collapseEmptyDivs();
+      // collapse div without ad
+      googletag.pubads().collapseEmptyDivs();
 
-    // load ad with slot refresh
-    googletag.pubads().disableInitialLoad();
+      // load ad with slot refresh
+      googletag.pubads().disableInitialLoad();
 
-    // enable google publisher tag
-    googletag.enableServices();
-  });
+      // enable google publisher tag
+      googletag.enableServices();
+    });
+  }
 
   loadScript();
 }
@@ -124,6 +126,7 @@ export default class GooglePublisherTag extends Component {
     minWindowWidth: PropTypes.number.isRequired,
     maxWindowWidth: PropTypes.number.isRequired,
     targeting: PropTypes.object,
+    enableServices: PropTypes.bool,
   };
 
   static defaultProps = {
