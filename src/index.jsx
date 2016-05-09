@@ -70,9 +70,10 @@ function initGooglePublisherTag(props) {
 
   // Execute callback when the slot is visible in DOM (thrown before 'impressionViewable' )
   if (typeof onSlotRenderEnded === 'function') {
-    googletag.cmd.push(function addCallback() {
-      googletag.pubads().addEventListener('slotRenderEnded', function slotRenderEnded(event) {
-        // check if the current slot is the one the callback was added to (as addEventListener is global)
+    googletag.cmd.push(() => {
+      googletag.pubads().addEventListener('slotRenderEnded', event => {
+        // check if the current slot is the one the callback
+        // was added to (as addEventListener is global)
         if (event.slot.getAdUnitPath() === path) {
           onSlotRenderEnded(event);
         }
@@ -81,8 +82,8 @@ function initGooglePublisherTag(props) {
   }
   // Execute callback when ad is completely visible in DOM
   if (typeof onImpressionViewable === 'function') {
-    googletag.cmd.push(function addCallback() {
-      googletag.pubads().addEventListener('impressionViewable', function imporessionViewable(event) {
+    googletag.cmd.push(() => {
+      googletag.pubads().addEventListener('impressionViewable', event => {
         if (event.slot.getAdUnitPath() === path) {
           onImpressionViewable(event);
         }
