@@ -130,6 +130,7 @@ export default class GooglePublisherTag extends Component {
     enableServices: PropTypes.bool,
     onSlotRenderEnded: PropTypes.func,
     onImpressionViewable: PropTypes.func,
+    onDisplayCallback: PropTypes.func,
   };
 
   static defaultProps = {
@@ -189,7 +190,13 @@ export default class GooglePublisherTag extends Component {
 
     // filter by min and max width
     const windowWidth = window.innerWidth;
-    const { minWindowWidth, maxWindowWidth, targeting, collapseEmptyDiv } = props;
+    const {
+      minWindowWidth,
+      maxWindowWidth,
+      targeting,
+      collapseEmptyDiv,
+      onDisplayCallback,
+    } = props;
 
     if (minWindowWidth !== -1 && minWindowWidth < windowWidth) {
       dimensions = [];
@@ -244,9 +251,13 @@ export default class GooglePublisherTag extends Component {
 
     slot.addService(googletag.pubads());
 
-    // display new slot
-    googletag.display(id);
-    googletag.pubads().refresh([slot]);
+    if (onDisplayCallback) {
+      onDisplayCallback({ id, slot });
+    } else {
+      // display new slot
+      googletag.display(id);
+      googletag.pubads().refresh([slot]);
+    }
   }
 
   removeSlot() {
