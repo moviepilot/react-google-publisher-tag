@@ -19,6 +19,10 @@ var _keymirror = require('keymirror');
 
 var _keymirror2 = _interopRequireDefault(_keymirror);
 
+var _forOwn = require('lodash/forOwn');
+
+var _forOwn2 = _interopRequireDefault(_forOwn);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -68,6 +72,16 @@ function getNextID() {
   return 'rgpt-' + nextID++;
 }
 
+function loadScript() {
+  var gads = document.createElement('script');
+  gads.async = true;
+  gads.type = 'text/javascript';
+  gads.src = '//www.googletagservices.com/tag/js/gpt.js';
+
+  var head = document.getElementsByTagName('head')[0];
+  head.appendChild(gads);
+}
+
 function initGooglePublisherTag(props) {
   var exitAfterAddingCommands = !!googletag;
 
@@ -79,13 +93,16 @@ function initGooglePublisherTag(props) {
   var onImpressionViewable = props.onImpressionViewable;
   var onSlotRenderEnded = props.onSlotRenderEnded;
   var path = props.path;
+  var _props$enableServices = props.enableServices;
+  var enableServices = _props$enableServices === undefined ? true : _props$enableServices;
 
   // Execute callback when the slot is visible in DOM (thrown before 'impressionViewable' )
 
   if (typeof onSlotRenderEnded === 'function') {
-    googletag.cmd.push(function addCallback() {
-      googletag.pubads().addEventListener('slotRenderEnded', function slotRenderEnded(event) {
-        // check if the current slot is the one the callback was added to (as addEventListener is global)
+    googletag.cmd.push(function () {
+      googletag.pubads().addEventListener('slotRenderEnded', function (event) {
+        // check if the current slot is the one the callback
+        // was added to (as addEventListener is global)
         if (event.slot.getAdUnitPath() === path) {
           onSlotRenderEnded(event);
         }
@@ -94,8 +111,8 @@ function initGooglePublisherTag(props) {
   }
   // Execute callback when ad is completely visible in DOM
   if (typeof onImpressionViewable === 'function') {
-    googletag.cmd.push(function addCallback() {
-      googletag.pubads().addEventListener('impressionViewable', function imporessionViewable(event) {
+    googletag.cmd.push(function () {
+      googletag.pubads().addEventListener('impressionViewable', function (event) {
         if (event.slot.getAdUnitPath() === path) {
           onImpressionViewable(event);
         }
@@ -107,29 +124,23 @@ function initGooglePublisherTag(props) {
     return;
   }
 
-  googletag.cmd.push(function prepareGoogleTag() {
-    // add support for async loading
-    googletag.pubads().enableAsyncRendering();
+  if (enableServices) {
+    googletag.cmd.push(function () {
+      // add support for async loading
+      googletag.pubads().enableAsyncRendering();
 
-    // collapse div without ad
-    googletag.pubads().collapseEmptyDivs();
+      // collapse div without ad
+      googletag.pubads().collapseEmptyDivs();
 
-    // load ad with slot refresh
-    googletag.pubads().disableInitialLoad();
+      // load ad with slot refresh
+      googletag.pubads().disableInitialLoad();
 
-    // enable google publisher tag
-    googletag.enableServices();
-  });
+      // enable google publisher tag
+      googletag.enableServices();
+    });
+  }
 
-  (function loadScript() {
-    var gads = document.createElement('script');
-    gads.async = true;
-    gads.type = 'text/javascript';
-    gads.src = '//www.googletagservices.com/tag/js/gpt.js';
-
-    var head = document.getElementsByTagName('head')[0];
-    head.appendChild(gads);
-  })();
+  loadScript();
 }
 
 var GooglePublisherTag = function (_Component) {
@@ -207,8 +218,9 @@ var GooglePublisherTag = function (_Component) {
       var windowWidth = window.innerWidth;
       var minWindowWidth = props.minWindowWidth;
       var maxWindowWidth = props.maxWindowWidth;
-      var _props$targeting = props.targeting;
-      var targeting = _props$targeting === undefined ? [] : _props$targeting;
+      var targeting = props.targeting;
+      var collapseEmptyDiv = props.collapseEmptyDiv;
+      var onDisplayCallback = props.onDisplayCallback;
 
 
       if (minWindowWidth !== -1 && minWindowWidth < windowWidth) {
@@ -246,18 +258,30 @@ var GooglePublisherTag = function (_Component) {
       // prepare new slot
       var slot = this.slot = googletag.defineSlot(props.path, dimensions, id);
 
-      // set targets
-      for (var key in targeting) {
-        if (targeting.hasOwnProperty(key)) {
-          slot.setTargeting(key, targeting[key]);
+      // set targeting
+      if (targeting) {
+        (0, _forOwn2.default)(targeting, function (value, key) {
+          slot.setTargeting(key, value);
+        });
+      }
+
+      if (typeof collapseEmptyDiv !== 'undefined') {
+        if (Array.isArray(collapseEmptyDiv)) {
+          slot.setCollapseEmptyDiv.apply('setCollapseEmptyDiv', collapseEmptyDiv);
+        } else {
+          slot.setCollapseEmptyDiv(collapseEmptyDiv);
         }
       }
 
       slot.addService(googletag.pubads());
 
-      // display new slot
-      googletag.display(id);
-      googletag.pubads().refresh([slot]);
+      if (onDisplayCallback) {
+        onDisplayCallback({ id: id, slot: slot });
+      } else {
+        // display new slot
+        googletag.display(id);
+        googletag.pubads().refresh([slot]);
+      }
     }
   }, {
     key: 'removeSlot',
@@ -291,16 +315,21 @@ var GooglePublisherTag = function (_Component) {
 }(_react.Component);
 
 GooglePublisherTag.propTypes = {
-  className: _react2.default.PropTypes.string,
-  path: _react2.default.PropTypes.string.isRequired,
-  format: _react2.default.PropTypes.string.isRequired,
-  responsive: _react2.default.PropTypes.bool.isRequired,
-  canBeLower: _react2.default.PropTypes.bool.isRequired, // can be ad lower than original size,
+  className: _react.PropTypes.string,
+  path: _react.PropTypes.string.isRequired,
+  format: _react.PropTypes.string.isRequired,
+  responsive: _react.PropTypes.bool.isRequired,
+  canBeLower: _react.PropTypes.bool.isRequired, // can be ad lower than original size,
 
-  dimensions: _react2.default.PropTypes.array, // [[300, 600], [160, 600]]
+  dimensions: _react.PropTypes.array, // [[300, 600], [160, 600]]
 
-  minWindowWidth: _react2.default.PropTypes.number.isRequired,
-  maxWindowWidth: _react2.default.PropTypes.number.isRequired
+  minWindowWidth: _react.PropTypes.number.isRequired,
+  maxWindowWidth: _react.PropTypes.number.isRequired,
+  targeting: _react.PropTypes.object,
+  enableServices: _react.PropTypes.bool,
+  onSlotRenderEnded: _react.PropTypes.func,
+  onImpressionViewable: _react.PropTypes.func,
+  onDisplayCallback: _react.PropTypes.func
 };
 GooglePublisherTag.defaultProps = {
   format: Format.HORIZONTAL,
