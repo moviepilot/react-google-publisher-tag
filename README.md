@@ -142,6 +142,7 @@ Pass a function that will be executed when the ad is fully rendered.
 ## CollapseEmptyDiv
 
 Define the collapsing behaviour of empty slots for a specific slots (default it set to true).
+
 | Behaviour                         | Argument     |
 |-----------------------------------|--------------|
 | Don't collapse the slot at all    | false        |
