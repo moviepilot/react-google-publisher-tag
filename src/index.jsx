@@ -48,9 +48,9 @@ function getNextID() {
   return `rgpt-${nextID++}`;
 }
 
-function loadScript(src, asyncDefinedAsTrue) {
+function loadScript({ src, loadAsync }) {
   const gads = document.createElement('script');
-  if (asyncDefinedAsTrue) {
+  if (loadAsync) {
     gads.async = true;
   }
   gads.type = 'text/javascript';
@@ -64,10 +64,13 @@ function loadScripts(options) {
   const { openX } = options;
 
   if (openX && openX.enabled) {
-    loadScript(openX.src, false);
+    loadScript({ src: openX.src, loadAsync: false });
   }
 
-  loadScript('//www.googletagservices.com/tag/js/gpt.js', true);
+  loadScript({
+    src: '//www.googletagservices.com/tag/js/gpt.js',
+    loadAsync: true,
+  });
 }
 
 function initGooglePublisherTag(props) {
