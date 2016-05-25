@@ -72,14 +72,33 @@ function getNextID() {
   return 'rgpt-' + nextID++;
 }
 
-function loadScript() {
+function loadScript(_ref) {
+  var src = _ref.src;
+  var loadAsync = _ref.loadAsync;
+
   var gads = document.createElement('script');
-  gads.async = true;
+  if (loadAsync) {
+    gads.async = true;
+  }
   gads.type = 'text/javascript';
-  gads.src = '//www.googletagservices.com/tag/js/gpt.js';
+  gads.src = src;
 
   var head = document.getElementsByTagName('head')[0];
   head.appendChild(gads);
+}
+
+function loadScripts(options) {
+  var openX = options.openX;
+
+
+  if (openX && openX.enabled) {
+    loadScript({ src: openX.src, loadAsync: false });
+  }
+
+  loadScript({
+    src: '//www.googletagservices.com/tag/js/gpt.js',
+    loadAsync: true
+  });
 }
 
 function initGooglePublisherTag(props) {
@@ -140,7 +159,7 @@ function initGooglePublisherTag(props) {
     });
   }
 
-  loadScript();
+  loadScripts(props);
 }
 
 var GooglePublisherTag = function (_Component) {
