@@ -48,14 +48,26 @@ function getNextID() {
   return `rgpt-${nextID++}`;
 }
 
-function loadScript() {
+function loadScript(src, asyncDefinedAsTrue) {
   const gads = document.createElement('script');
-  gads.async = true;
+  if (asyncDefinedAsTrue) {
+    gads.async = true;
+  }
   gads.type = 'text/javascript';
-  gads.src = '//www.googletagservices.com/tag/js/gpt.js';
+  gads.src = src;
 
   const head = document.getElementsByTagName('head')[0];
   head.appendChild(gads);
+}
+
+function loadScripts(options) {
+  const { openX } = options;
+
+  if (openX && openX.enabled) {
+    loadScript(openX.src, false);
+  }
+
+  loadScript('//www.googletagservices.com/tag/js/gpt.js', true);
 }
 
 function initGooglePublisherTag(props) {
@@ -111,7 +123,7 @@ function initGooglePublisherTag(props) {
     });
   }
 
-  loadScript();
+  loadScripts(props);
 }
 
 export default class GooglePublisherTag extends Component {
