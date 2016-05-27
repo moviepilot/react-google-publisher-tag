@@ -48,23 +48,41 @@ function getNextID() {
   return `rgpt-${nextID++}`;
 }
 
-function loadScript({ src, loadAsync }) {
-  const gads = document.createElement('script');
+function loadScript({ src, loadAsync, onload }) {
+  const theScript = document.createElement('script');
+
   if (loadAsync) {
-    gads.async = true;
+    theScript.async = true;
   }
-  gads.type = 'text/javascript';
-  gads.src = src;
+  if (onload) {
+    theScript.onload = onload;
+  }
+
+  theScript.type = 'text/javascript';
+  theScript.src = src;
 
   const head = document.getElementsByTagName('head')[0];
-  head.appendChild(gads);
+  head.appendChild(theScript);
 }
 
+const getAmazonAds = () => {
+  if (window.amznads) {
+    window.amznads.getAdsCallback('3366', () => {
+      googletag = googletag || {};
+      googletag.cmd = googletag.cmd || [];
+      window.amznads.setTargetingForGPTAsync('amznslots');
+    });
+  }
+};
+
 function loadScripts(options) {
-  const { openX } = options;
+  const { openX, amazon } = options;
 
   if (openX && openX.enabled) {
     loadScript({ src: openX.src, loadAsync: false });
+  }
+  if (amazon && amazon.enabled) {
+    loadScript({ src: amazon.src, loadAsync: false, onload: getAmazonAds });
   }
 
   loadScript({
@@ -249,6 +267,11 @@ export default class GooglePublisherTag extends Component {
     // prepare new slot
     const slot = this.slot = googletag.defineSlot(props.path, dimensions, id);
 
+    if (window.amznads && window.amznads.getTokens) {
+      const amazonTargetingKey = 'amznslots';
+      const amazonTargetingValues = window.amznads.getTokens();
+      slot.setTargeting(amazonTargetingKey, amazonTargetingValues);
+    }
     // set targeting
     if (targeting) {
       forOwn(targeting, (value, key) => {

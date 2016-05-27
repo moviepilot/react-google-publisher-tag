@@ -75,24 +75,44 @@ function getNextID() {
 function loadScript(_ref) {
   var src = _ref.src;
   var loadAsync = _ref.loadAsync;
+  var onload = _ref.onload;
 
-  var gads = document.createElement('script');
+  var theScript = document.createElement('script');
+
   if (loadAsync) {
-    gads.async = true;
+    theScript.async = true;
   }
-  gads.type = 'text/javascript';
-  gads.src = src;
+  if (onload) {
+    theScript.onload = onload;
+  }
+
+  theScript.type = 'text/javascript';
+  theScript.src = src;
 
   var head = document.getElementsByTagName('head')[0];
-  head.appendChild(gads);
+  head.appendChild(theScript);
 }
+
+var getAmazonAds = function getAmazonAds() {
+  if (window.amznads) {
+    window.amznads.getAdsCallback('3366', function () {
+      googletag = googletag || {};
+      googletag.cmd = googletag.cmd || [];
+      window.amznads.setTargetingForGPTAsync('amznslots');
+    });
+  }
+};
 
 function loadScripts(options) {
   var openX = options.openX;
+  var amazon = options.amazon;
 
 
   if (openX && openX.enabled) {
     loadScript({ src: openX.src, loadAsync: false });
+  }
+  if (amazon && amazon.enabled) {
+    loadScript({ src: amazon.src, loadAsync: false, onload: getAmazonAds });
   }
 
   loadScript({
@@ -277,6 +297,11 @@ var GooglePublisherTag = function (_Component) {
       // prepare new slot
       var slot = this.slot = googletag.defineSlot(props.path, dimensions, id);
 
+      if (window.amznads && window.amznads.getTokens) {
+        var amazonTargetingKey = 'amznslots';
+        var amazonTargetingValues = window.amznads.getTokens();
+        slot.setTargeting(amazonTargetingKey, amazonTargetingValues);
+      }
       // set targeting
       if (targeting) {
         (0, _forOwn2.default)(targeting, function (value, key) {
