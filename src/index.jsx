@@ -107,7 +107,7 @@ function initGooglePublisherTag(props) {
       googletag.pubads().addEventListener('slotRenderEnded', event => {
         // check if the current slot is the one the callback
         // was added to (as addEventListener is global)
-        if (event.slot.getAdUnitPath() === path) {
+        if (event && event.slot && event.slot.getAdUnitPath() === path) {
           onSlotRenderEnded(event);
         }
       });
@@ -117,7 +117,7 @@ function initGooglePublisherTag(props) {
   if (typeof onImpressionViewable === 'function') {
     googletag.cmd.push(() => {
       googletag.pubads().addEventListener('impressionViewable', event => {
-        if (event.slot.getAdUnitPath() === path) {
+        if (event && event.slot && event.slot.getAdUnitPath() === path) {
           onImpressionViewable(event);
         }
       });
