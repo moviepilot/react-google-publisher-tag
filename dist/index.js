@@ -311,7 +311,7 @@ var GooglePublisherTag = function (_Component) {
 
       if (typeof collapseEmptyDiv !== 'undefined') {
         if (Array.isArray(collapseEmptyDiv)) {
-          slot.setCollapseEmptyDiv.apply('setCollapseEmptyDiv', collapseEmptyDiv);
+          slot.setCollapseEmptyDiv(collapseEmptyDiv[0], collapseEmptyDiv[1]);
         } else {
           slot.setCollapseEmptyDiv(collapseEmptyDiv);
         }
