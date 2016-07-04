@@ -1,6 +1,6 @@
 {
   "name": "@moviepilot/react-google-publisher-tag",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "Adsense via Google publisher tag for the isomorphic applications",
   "author": {
     "name": "Zlatko Fedor",
