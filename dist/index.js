@@ -19,10 +19,6 @@ var _keymirror = require('keymirror');
 
 var _keymirror2 = _interopRequireDefault(_keymirror);
 
-var _forOwn = require('lodash/forOwn');
-
-var _forOwn2 = _interopRequireDefault(_forOwn);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -303,10 +299,10 @@ var GooglePublisherTag = function (_Component) {
         slot.setTargeting(amazonTargetingKey, amazonTargetingValues);
       }
       // set targeting
-      if (targeting) {
-        (0, _forOwn2.default)(targeting, function (value, key) {
-          slot.setTargeting(key, value);
-        });
+      for (var key in targeting) {
+        if (targeting.hasOwnProperty(key)) {
+          slot.setTargeting(key, targeting[key]);
+        }
       }
 
       if (typeof collapseEmptyDiv !== 'undefined') {
