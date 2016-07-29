@@ -245,11 +245,11 @@ export default class GooglePublisherTag extends Component {
 
     slot.addService(googletag.pubads());
 
+    googletag.display(id);
     if (onDisplayCallback) {
       onDisplayCallback({ id, slot });
     } else {
       // display new slot
-      googletag.display(id);
       googletag.pubads().refresh([slot]);
     }
   }
