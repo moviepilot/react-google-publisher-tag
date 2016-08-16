@@ -245,7 +245,9 @@ export default class GooglePublisherTag extends Component {
 
     slot.addService(googletag.pubads());
 
-    googletag.display(id);
+    // LET'S REMOVE THE FOLLOWING LINE ONCE WE'RE SURE IT DOES NOT BREAK ANYTHING ELSE
+    // googletag.display(id);
+
     if (onDisplayCallback) {
       onDisplayCallback({ id, slot });
     } else {
