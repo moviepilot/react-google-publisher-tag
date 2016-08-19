@@ -47,7 +47,7 @@ function getNextID() {
   return `rgpt-${nextID++}`;
 }
 
-function initGooglePublisherTag(props) {
+function initGooglePublisherTag(props, $component) {
   const exitAfterAddingCommands = !!googletag;
 
   if (!googletag) {
@@ -65,6 +65,15 @@ function initGooglePublisherTag(props) {
         // was added to (as addEventListener is global)
         if (event && event.slot && event.slot.getAdUnitPath() === path) {
           onSlotRenderEnded(event);
+
+          // Remove the resize handler if the size is a 1x1
+          if (props.responsive) {
+            const { size = [] } = event;
+            const isOneByOne = size[0] === 1 && size[1] === 1;
+            if (isOneByOne) {
+              window.removeEventListener('resize', $component.handleResize);
+            }
+          }
         }
       });
     });
@@ -130,7 +139,7 @@ export default class GooglePublisherTag extends Component {
   };
 
   componentDidMount() {
-    initGooglePublisherTag(this.props);
+    initGooglePublisherTag(this.props, this);
 
     if (this.props.responsive) {
       window.addEventListener('resize', this.handleResize);
